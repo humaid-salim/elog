@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# VARIABLES
+log_file="${HOME}/data/documents/notes/event_log"
+current_time="$(date +%Y.%m.%d-%I:%M:%S)"
+
+
+# FUNCTIONS
+usage() {
+cat << -EOF
+Usage: elog [OPTION] [MESSEGE]
+  a, add	Add a new entry
+  t, time	Print time elapsed since last entry
+  s, show	Show event log
+
+Messege is only available for "add" option
+-EOF
+}
+
+get_last() {
+	last_time="$(tail -n 3 $log_file | head -n 1 | cut -c 3-)"
+}
+
+get_elapsed() {
+	elapsed="$(( $(date -d $current_time +%s) - $(date -d $last_time +%s) ))"
+}
+
+check_file() {
+	[ ! -w "$log_file" ] && echo "Event log file doesn't exist" && exit
+}
+
+get_times() {
+	while [ $elapsed -ge 86400 ]; do
+		elapsed="$(( $elapsed - 86400 ))"
+		days="$(( $days + 1 ))"
+	done
+	while [ $elapsed -ge 3600 ]; do
+		elapsed="$(( $elapsed - 3600 ))"
+		hours="$(( $hours + 1 ))"
+	done
+	while [ $elapsed -ge 60 ]; do
+		elapsed="$(( $elapsed - 60 ))"
+		minutes="$(( $minutes + 1 ))"
+	done
+	
+	echo ${days:-0}'d':${hours:-0}'h':${minutes:-0}'m':$elapsed's'
+}
+
+
+# CHECK ARGUMENTS
+case $1 in
+	a|add)
+		shift
+		echo "+ $current_time" >> "$log_file"
+		echo -e "\t$@\n" >> "$log_file"
+		tail -n 3 "$log_file"
+		;;
+	t|time)
+		check_file
+		get_last
+		get_elapsed
+		get_times
+		;;
+	s|show)
+		check_file
+		less $log_file
+		;;
+	*)
+		usage
+		;;
+esac
