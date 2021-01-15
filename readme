@@ -1,0 +1,22 @@
+elog - simple event log
+-----------------------
+
+elog is a simple program that can add enteries with an optonal
+message. It can report time elapsed since the last entry in that file.
+
+Every entry consists of the time and date on one line, and an indented
+messege on the next line.
+
+[options]
+elog has three options: add, time, show
+
+add option will register the current time and date is a new entry
+and the messege for that entry if the user wants.
+
+time option will print the time since the last entry.
+
+show option will open the event log file.
+
+[event log file]
+The event log file's default location is XDG_CONFIG_HOME/event_log.
+if EVENT_LOG variable is set, it will be used instead.
